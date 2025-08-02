@@ -1,16 +1,68 @@
 import { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [imagemUrl, setImagemUrl] = useState("");
-  const [categoria, setCategoria] = useState("");
+  const [categoria, setCategoria] = useState("Artigo");
+  const [dataPublicacao, setDataPublicacao] = useState("");
+
+  function isValidUrl(url) {
+    return url.startsWith("http");
+  }
+
+  function isFutureOrToday(dateStr) {
+    const hoje = new Date();
+    const data = new Date(dateStr);
+    return data >= new Date(hoje.toDateString());
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
-    console.log("Título:", titulo);
-    console.log("Descrição:", descricao);
-    console.log("URL da Imagem:", imagemUrl);
-    console.log("Categoria:", categoria);
+
+    if (!titulo.trim()) {
+      toast.error("O título é obrigatório.");
+      return;
+    }
+
+    if (!descricao.trim()) {
+      toast.error("A descrição é obrigatória.");
+      return;
+    }
+
+    if (!imagemUrl.trim() || !isValidUrl(imagemUrl)) {
+      toast.error("A URL da imagem deve começar com 'http'.");
+      return;
+    }
+
+    if (!categoria) {
+      toast.error("Selecione uma categoria.");
+      return;
+    }
+
+    if (!dataPublicacao || !isFutureOrToday(dataPublicacao)) {
+      toast.error("A data deve ser hoje ou futura.");
+      return;
+    }
+
+    toast.success("Post enviado com sucesso!");
+
+    console.log({
+      titulo,
+      descricao,
+      imagemUrl,
+      categoria,
+      dataPublicacao
+    });
+
+    // Resetar os campos
+    setTitulo("");
+    setDescricao("");
+    setImagemUrl("");
+    setCategoria("Artigo");
+    setDataPublicacao("");
   }
 
   return (
@@ -47,11 +99,6 @@ function App() {
           />
         </div>
 
-        <div>
-          <label htmlFor="dataPublicacao">Data de Publicação:</label>
-          <input type="date" name="dataPublicacao" id="dataPublicacao" />
-        </div>
-
         <div style={{ marginTop: "1rem" }}>
           <label htmlFor="categoria">Categoria:</label>
           <select
@@ -59,6 +106,7 @@ function App() {
             value={categoria}
             onChange={(e) => setCategoria(e.target.value)}
           >
+            <option value="">Selecione</option>
             <option value="Artigo">Artigo</option>
             <option value="Notícia">Notícia</option>
             <option value="Tutorial">Tutorial</option>
@@ -66,12 +114,21 @@ function App() {
           </select>
         </div>
 
+        <div style={{ marginTop: "1rem" }}>
+          <label htmlFor="data">Data de Publicação:</label>
+          <input
+            id="data"
+            type="date"
+            value={dataPublicacao}
+            onChange={(e) => setDataPublicacao(e.target.value)}
+          />
+        </div>
+
         <button type="submit" style={{ marginTop: "1rem" }}>
           Publicar
         </button>
       </form>
 
-      
       {imagemUrl && (
         <div style={{ marginTop: "2rem" }}>
           <h3>Pré-visualização da imagem:</h3>
@@ -82,6 +139,8 @@ function App() {
           />
         </div>
       )}
+
+      <ToastContainer />
     </div>
   );
 }
