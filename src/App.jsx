@@ -4,12 +4,13 @@ function App() {
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [imagemUrl, setImagemUrl] = useState("");
-
+  const [categoria, setCategoria] = useState("");
   function handleSubmit(e) {
     e.preventDefault();
     console.log("Título:", titulo);
     console.log("Descrição:", descricao);
     console.log("URL da Imagem:", imagemUrl);
+    console.log("Categoria:", categoria);
   }
 
   return (
@@ -51,8 +52,22 @@ function App() {
           <input type="date" name="dataPublicacao" id="dataPublicacao" />
         </div>
 
+        <div style={{ marginTop: "1rem" }}>
+          <label htmlFor="categoria">Categoria:</label>
+          <select
+            id="categoria"
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value)}
+          >
+            <option value="Artigo">Artigo</option>
+            <option value="Notícia">Notícia</option>
+            <option value="Tutorial">Tutorial</option>
+            <option value="Entrevista">Entrevista</option>
+          </select>
+        </div>
+
         <button type="submit" style={{ marginTop: "1rem" }}>
-          Enviar
+          Publicar
         </button>
       </form>
 
