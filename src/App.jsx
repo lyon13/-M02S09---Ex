@@ -46,6 +46,11 @@ function App() {
           />
         </div>
 
+        <div>
+          <label htmlFor="dataPublicacao">Data de Publicação:</label>
+          <input type="date" name="dataPublicacao" id="dataPublicacao" />
+        </div>
+
         <button type="submit" style={{ marginTop: "1rem" }}>
           Enviar
         </button>
