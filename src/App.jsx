@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import './App.css';
 
 function App() {
   const [titulo, setTitulo] = useState("");
@@ -47,17 +48,26 @@ function App() {
       return;
     }
 
-    toast.success("Post enviado com sucesso!");
-
-    console.log({
+    const novoPost = {
       titulo,
       descricao,
       imagemUrl,
       categoria,
-      dataPublicacao
-    });
+      dataPublicacao,
+    };
 
-    // Resetar os campos
+    
+    const postsExistentes = JSON.parse(localStorage.getItem("posts") || "[]");
+
+    
+    const atualizados = [...postsExistentes, novoPost];
+
+    
+    localStorage.setItem("posts", JSON.stringify(atualizados));
+
+    toast.success("Post salvo com sucesso!");
+
+   
     setTitulo("");
     setDescricao("");
     setImagemUrl("");
@@ -125,7 +135,7 @@ function App() {
         </div>
 
         <button type="submit" style={{ marginTop: "1rem" }}>
-          Publicar
+          Enviar
         </button>
       </form>
 
