@@ -1,156 +1,111 @@
-import { useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
-import './App.css';
+import { useEffect, useState } from "react";
+import "./App.css";
 
 function App() {
-  const [titulo, setTitulo] = useState("");
-  const [descricao, setDescricao] = useState("");
-  const [imagemUrl, setImagemUrl] = useState("");
-  const [categoria, setCategoria] = useState("Artigo");
-  const [dataPublicacao, setDataPublicacao] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [category, setCategory] = useState("");
+  const [date, setDate] = useState("");
+  const [totalPosts, setTotalPosts] = useState(0);
 
-  function isValidUrl(url) {
-    return url.startsWith("http");
-  }
-
-  function isFutureOrToday(dateStr) {
-    const hoje = new Date();
-    const data = new Date(dateStr);
-    return data >= new Date(hoje.toDateString());
-  }
+  useEffect(() => {
+    const savedPosts = JSON.parse(localStorage.getItem("posts") || "[]");
+    setTotalPosts(savedPosts.length);
+  }, []);
 
   function handleSubmit(e) {
     e.preventDefault();
 
-    if (!titulo.trim()) {
-      toast.error("O título é obrigatório.");
+    // Validações
+    if (!title.trim()) {
+      alert("Título é obrigatório.");
       return;
     }
 
-    if (!descricao.trim()) {
-      toast.error("A descrição é obrigatória.");
+    if (!description.trim()) {
+      alert("Descrição é obrigatória.");
       return;
     }
 
-    if (!imagemUrl.trim() || !isValidUrl(imagemUrl)) {
-      toast.error("A URL da imagem deve começar com 'http'.");
+    if (!imageUrl.startsWith("http")) {
+      alert("URL da imagem deve começar com 'http'.");
       return;
     }
 
-    if (!categoria) {
-      toast.error("Selecione uma categoria.");
+    if (!category) {
+      alert("Selecione uma categoria.");
       return;
     }
 
-    if (!dataPublicacao || !isFutureOrToday(dataPublicacao)) {
-      toast.error("A data deve ser hoje ou futura.");
+    const now = new Date();
+    const selectedDate = new Date(date);
+    if (!date || selectedDate < now.setHours(0, 0, 0, 0)) {
+      alert("A data deve ser de hoje ou uma data futura.");
       return;
     }
 
-    const novoPost = {
-      titulo,
-      descricao,
-      imagemUrl,
-      categoria,
-      dataPublicacao,
-    };
+    // Salvar post
+    const newPost = { title, description, imageUrl, category, date };
+    const existingPosts = JSON.parse(localStorage.getItem("posts") || "[]");
+    const updatedPosts = [...existingPosts, newPost];
+    localStorage.setItem("posts", JSON.stringify(updatedPosts));
 
-    
-    const postsExistentes = JSON.parse(localStorage.getItem("posts") || "[]");
+    // Atualizar total
+    setTotalPosts(updatedPosts.length);
 
-    
-    const atualizados = [...postsExistentes, novoPost];
+    // Limpar campos
+    setTitle("");
+    setDescription("");
+    setImageUrl("");
+    setCategory("");
+    setDate("");
 
-    
-    localStorage.setItem("posts", JSON.stringify(atualizados));
-
-    toast.success("Post salvo com sucesso!");
-
-   
-    setTitulo("");
-    setDescricao("");
-    setImagemUrl("");
-    setCategoria("Artigo");
-    setDataPublicacao("");
+    alert("Post salvo com sucesso!");
   }
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Criar Post</h1>
+    <div className="container">
+      <h1>Cadastro de Post</h1>
+      <p>Total de posts: {totalPosts}</p>
+
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="titulo">Título:</label>
-          <input
-            id="titulo"
-            type="text"
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-          />
-        </div>
+        <input
+          type="text"
+          placeholder="Título"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
 
-        <div style={{ marginTop: "1rem" }}>
-          <label htmlFor="descricao">Descrição:</label>
-          <textarea
-            id="descricao"
-            value={descricao}
-            onChange={(e) => setDescricao(e.target.value)}
-          />
-        </div>
+        <textarea
+          placeholder="Descrição"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
-        <div style={{ marginTop: "1rem" }}>
-          <label htmlFor="imagem">URL da imagem de capa:</label>
-          <input
-            id="imagem"
-            type="url"
-            value={imagemUrl}
-            onChange={(e) => setImagemUrl(e.target.value)}
-            placeholder="https://exemplo.com/imagem.jpg"
-          />
-        </div>
+        <input
+          type="text"
+          placeholder="URL da imagem de capa"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+        />
 
-        <div style={{ marginTop: "1rem" }}>
-          <label htmlFor="categoria">Categoria:</label>
-          <select
-            id="categoria"
-            value={categoria}
-            onChange={(e) => setCategoria(e.target.value)}
-          >
-            <option value="">Selecione</option>
-            <option value="Artigo">Artigo</option>
-            <option value="Notícia">Notícia</option>
-            <option value="Tutorial">Tutorial</option>
-            <option value="Entrevista">Entrevista</option>
-          </select>
-        </div>
+        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+          <option value="">Selecione uma categoria</option>
+          <option value="Artigo">Artigo</option>
+          <option value="Notícia">Notícia</option>
+          <option value="Tutorial">Tutorial</option>
+          <option value="Entrevista">Entrevista</option>
+        </select>
 
-        <div style={{ marginTop: "1rem" }}>
-          <label htmlFor="data">Data de Publicação:</label>
-          <input
-            id="data"
-            type="date"
-            value={dataPublicacao}
-            onChange={(e) => setDataPublicacao(e.target.value)}
-          />
-        </div>
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
 
-        <button type="submit" style={{ marginTop: "1rem" }}>
-          Enviar
-        </button>
+        <button type="submit">Salvar Post</button>
       </form>
-
-      {imagemUrl && (
-        <div style={{ marginTop: "2rem" }}>
-          <h3>Pré-visualização da imagem:</h3>
-          <img
-            src={imagemUrl}
-            alt="Imagem de capa"
-            style={{ maxWidth: "100%", maxHeight: "300px", borderRadius: "8px" }}
-          />
-        </div>
-      )}
-
-      <ToastContainer />
     </div>
   );
 }
